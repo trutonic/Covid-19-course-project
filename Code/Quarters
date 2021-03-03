@@ -1,0 +1,26 @@
+#separate into quarters for 2020
+AF.Q1 <- covid %>% 
+  filter(Date_reported>= "2020-01-01", Date_reported<= "2020-03-31", Country_code== "AF") %>% group_by(Date_reported,WHO_region) %>%  
+   mutate(region=Country) 
+view(covid.Q1)
+
+AF.Q2 <- covid %>% 
+  filter(Date_reported>= "2020-04-01", Date_reported<= "2020-06-30", Country_code== "AF") %>% group_by(Date_reported,WHO_region) %>%  
+   mutate(region=Country)
+view(covid.Q2)
+
+AF.Q3 <- covid %>% 
+  filter(Date_reported>= "2020-07-01", Date_reported<= "2020-09-30", Country_code== "AF") %>% group_by(Date_reported,WHO_region) %>%  
+   mutate(region=Country)
+view(covid.Q3)
+
+AF.Q4 <- covid %>% 
+  filter(Date_reported>= "2020-10-01", Date_reported<= "2020-12-31", Country_code== "AF") %>% group_by(Date_reported,WHO_region) %>%  
+   mutate(region=Country)
+view(covid.Q4)
+
+#sum of all q1 cases in africa
+c.AF.Q4 <- sum(AF.Q1$Cumulative_cases)
+c.AF.Q4
+
+#please let me know if theres an easier/more condensed way to do this
