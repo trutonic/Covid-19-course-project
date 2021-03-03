@@ -1,7 +1,10 @@
 library(tidyverse)
 
-#covid <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
+covid <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
 gdp <- read.csv(file = 'gdp.csv', header = FALSE)
+
+
+#DATA PREPROCESSIG 
 
 country_names = c()
 data_from = c()
@@ -45,3 +48,23 @@ gdp <- tibble(Countries=country_names,
               Latest_value=latest_value,
               Change_3_months=change_3_months,
               Change_12_months= change_12_months)
+
+
+#Check which countries from gdp are not in covid dataset 
+gdp.distinct.country = gdp %>% distinct(Countries)
+covid.distinct.country = covid %>% distinct(Country)
+
+indexes = gdp.distinct.country$Countries %in% covid.distinct.country$Country
+not_found = gdp.distinct.country$Countries[!indexes]
+
+#Make sure they are not written as something else
+#For this we are checking for a substring of each not found country in the covid dataset 
+for (country in not_found){
+  for (i in 1:dim(covid.distinct.country)[1]){
+    subs = substr(country,1,3)
+    if (grepl(subs, covid.distinct.country[i,1]$Country, fixed = TRUE)){
+      cat(country, ":", covid.distinct.country[i,1]$Country, "\n")
+    }
+  }
+}
+
