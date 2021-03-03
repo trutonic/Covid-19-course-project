@@ -7,19 +7,9 @@ output:
     df_print: paged
     number_sections: yes
 ---
-```{r global_options, include=FALSE}
-knitr::opts_chunk$set(fig.pos = 'H')
+```{r, echo=FALSE}
+library(tidyverse)
 ```
-
-***
-
-Note: 
-
-- This template provides only a suggestion. You may use other templates or formats that you are comfortable with. 
-
-- **Remove these remarks in your submission.**
-
-***
 
 # Abstract 
 
@@ -31,29 +21,31 @@ A (very) short summary of the report. As an example, you can simply write one se
 
 # Introduction
 
-<span style='color:blue'> 
-In this section, state the questions of interest, motivation of this analysis, and potential impact of your results. You can simply rephrase the Project Description for minimal efforts. You can also cite published papers or credible articles on the Internet.
-</span>
+COVID-19 came to shock the world socially, politically, and economically. Many governments made the decision to lockdown their countries in response to COVID-19 as a way to limit the spread of the virus. This came with direct costs to economic activities as many businesses were forced to halt their operations or adapt to regulations in order to keep productivity afloat. In this paper, we measure the impact of COVID-19 on the economy by examining the effects of COVID-related deaths and cases on GDP. We use GDP as a measurement of the economy as it tracks income and spending in the economy, and it can be compared with other coutries and across time. We also note the various lockdown announcements in March of 2020 to carefully observe the changes in GDP around that time. 
  
 # Background 
 
-<span style='color:blue'> 
-In this section, explain the source of data, target population, sampling mechanism, and variables in this data set. You can briefly review  existing research or known results, which will help you in the analysis.
-</span> 
+For our data, we use a csv file containing COVID-19 from the WHO website which can be found [here](https://covid19.who.int/WHO-COVID-19-global-data.csv). This dataset consists of 8 variables: the date reported, country code, country, WHO region, new cases, cumulative cases, new deaths, and cumulative deaths. Information about WHO regions and country codes can be found on the WHO website. The dataset is maintained and updated regularly by WHO. The WHO makes a statement about the dataset in their overview that "all counts are subject to variations in case detection, definitions, laboratory test, and reporting strategies between countries, states, and territories." The case/death data is based on WHO case definitions which can be found [here](https://www.who.int/publications/i/item/who-2019-nCoV-surveillanceguidance-2020.8). The collection of the data was started on the 3rd of January 2020, and collection is still on-going at the time this paper was written. The WHO sources their data through cases and deaths communicated by the International Health Regulation and reconciles this data through official minitries of health websites and social media accounts. Negative numbers may appear in the dataset as reconciliation exercises are performed to keep the data as accurate as possible. 
 
 # Descriptive analysis 
 
-<span style='color:blue'> 
-Select the variables you find relevant based on your understanding in the Background section. Summarize univariate descriptive statistics for the selected variables (mean, standard deviations, missing values,  quantiles, etc.). You can create the table using functions in base `R`, or use packages (see, e.g., [this note](https://cran.r-project.org/web/packages/qwraps2/vignettes/summary-statistics.html)). 
-</span>
+```{r}
+covid = read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
+covid$Case_mortality_rate = covid$Cumulative_cases / covid$Cumulative_deaths
+covid$Case_mortality_rate[is.nan(covid$Case_mortality_rate)] = 0
+
+summary(covid$Date_reported)
+summary(covid$New_cases)
+summary(covid$Cumulative_cases)
+summary(covid$New_deaths)
+summary(covid$Cumulative_deaths)
+```
 
 # Inferential analysis 
 
-# Sensitivity analysis 
+# Model Diagnostics
 
-# (Optional) Causal interpretation 
-
-# Discussion 
+# Conclusion
 
 <span style='color:blue'> 
 Conclude your analysis in this section. You can touch on the following topics. 
