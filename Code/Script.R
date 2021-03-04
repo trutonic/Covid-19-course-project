@@ -187,7 +187,7 @@ copy_Qcovid = Qcovid
 covid_gdp = data.frame(gdp[1:4])
 covid_gdp = covid_gdp %>% filter(Latest_data_from == "Q3 / 2020") #data from 2020 only
 covid_gdp = data.frame(merge(copy_Qcovid, covid_gdp, by.x = c("country", "quarter"), by.y = c("Countries", "Latest_data_from")))
-covid_gdp$case_increase = unlist(c(covid_gdp[4] - covid_gdp[3])) #case increase from quarter with most recently available gdp
+covid_gdp$case_increase = unlist(c(covid_gdp[4] - covid_gdp[3]))
 covid_gdp = data.frame(covid_gdp[,c(1, 9:11)])
 
 population = read_csv('https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv')
@@ -201,7 +201,7 @@ covid_gdp = merge(population, covid_gdp, by.x = "Location", by.y = "country")
 
 covid_gdp$prp_case_increase = unlist(c(covid_gdp[5] / covid_gdp[2]))
 covid_gdp$gdp_per_capita = as.numeric(unlist(covid_gdp[3])) / covid_gdp[2]
-covid_gdp = data.frame(covid_gdp[,c(1,4,6,7)])
+#covid_gdp = data.frame(covid_gdp[,c(1,4,6,7)])
 
 ######## 
 #`covid_gpa`:
