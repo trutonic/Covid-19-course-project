@@ -184,10 +184,28 @@ Qcovid = get.quarter.info(covid = covid)
 ######## USE 'gdp' AND 'Qcovid' DATAFRAMES 
 
 copy_Qcovid = Qcovid
-covid_gdp = gdp[1:4]
-covid_gdp = covid_gdp %>% filter(grepl("2020", Latest_data_from, fixed = TRUE)) #data from 2020 only
-covid_gdp = merge(copy_Qcovid, covid_gdp, by.x = c("country", "quarter"), by.y = c("Countries", "Latest_data_from"))
-covid_gdp$case_increase = covid_gdp[4] - covid_gdp[3] #case increase from quarter with most recently available gdp
-covid_gdp = covid_gdp[,c(1, 9:11)] #variables: Country, Latest gdp value, Change in gdp, Total increase in cases
+covid_gdp = data.frame(gdp[1:4])
+covid_gdp = covid_gdp %>% filter(Latest_data_from == "Q3 / 2020") #data from 2020 only
+covid_gdp = data.frame(merge(copy_Qcovid, covid_gdp, by.x = c("country", "quarter"), by.y = c("Countries", "Latest_data_from")))
+covid_gdp$case_increase = unlist(c(covid_gdp[4] - covid_gdp[3])) #case increase from quarter with most recently available gdp
+covid_gdp = data.frame(covid_gdp[,c(1, 9:11)])
 
-######## `covid_gdp` has all variables for ANOVA (though we should probably find proportions with population data)
+population = read_csv('https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv')
+population = population %>% filter(Time == "2019")
+population = data.frame(population[,c(2,9)])
+i = which(population$Location == "United Kingdom")
+population$Location[i] = "The United Kingdom"
+i = which(population$Location == "State of Palestine")
+population$Location[i] = "occupied Palestinian territory, including east Jerusalem"
+covid_gdp = merge(population, covid_gdp, by.x = "Location", by.y = "country")
+
+covid_gdp$prp_case_increase = unlist(c(covid_gdp[5] / covid_gdp[2]))
+covid_gdp$gdp_per_capita = as.numeric(unlist(covid_gdp[3])) / covid_gdp[2]
+covid_gdp = data.frame(covid_gdp[,c(1,4,6,7)])
+
+######## 
+#`covid_gpa`:
+# Change_3_months - %GDP change from Q2
+# prp_Case_increase - proportion of the population infected Q3
+# gdp_per_capita - total GDP per country population
+
