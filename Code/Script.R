@@ -181,6 +181,12 @@ get.quarter.info = function(covid){
 
 Qcovid = get.quarter.info(covid = covid)
 
+
+################ Conversions################
+#gdp is in billion local currency (First multiply by 1billion)
+gdp$Latest_value = as.numeric(gdp$Latest_value) * 10^9
+gdp$Latest_value = as.character(gdp$Latest_value)
+
 ######## USE 'gdp' AND 'Qcovid' DATAFRAMES 
 
 copy_Qcovid = Qcovid
@@ -199,13 +205,101 @@ i = which(population$Location == "State of Palestine")
 population$Location[i] = "occupied Palestinian territory, including east Jerusalem"
 covid_gdp = merge(population, covid_gdp, by.x = "Location", by.y = "country")
 
+#Convert population
+covid_gdp$PopTotal = covid_gdp$PopTotal * 1000
+
 covid_gdp$prp_case_increase = unlist(c(covid_gdp[5] / covid_gdp[2]))
 covid_gdp$gdp_per_capita = as.numeric(unlist(covid_gdp[3])) / covid_gdp[2]
-#covid_gdp = data.frame(covid_gdp[,c(1,4,6,7)])
+#covid_gdp = data.frame
 
 ######## 
-#`covid_gpa`:
+#Change 'Change_3_months' type to numeric instead of char 
+numeric_change_3_months = c()
+for (i in 1:length(covid_gdp$Change_3_months)){
+  word = covid_gdp$Change_3_months[i]
+  num = as.numeric(substr(word,1,nchar(word)-1))
+  numeric_change_3_months = append(numeric_change_3_months,num)
+}
+
+covid_gdp$Change_3_months = numeric_change_3_months
+
+#Make into a tibble  
+covid_gdp = tibble(covid_gdp)
+covid_gdp$Latest_value =  as.numeric(covid_gdp$Latest_value)
+covid_gdp2 = covid_gdp %>% select(Location, Change_3_months,prp_case_increase,gdp_per_capita)
+
+
+################ `covid_gpa2`################
+
 # Change_3_months - %GDP change from Q2
 # prp_Case_increase - proportion of the population infected Q3
 # gdp_per_capita - total GDP per country population
+
+#############################################
+
+##NOTICED THAT GDP IS IN LOCAL CURRENCY -> NEED TO CHANGE TO US DOLLAR
+# gdp_per_capita_US = c(1398.10,
+#                       1678.52,
+#                       14867.17,
+#                       12781.53,
+#                       1061.99,
+#                       5349.14,
+#                       1636.94,
+#                       1639.05,
+#                       1760.51,
+#                       1581.03,
+#                       6883.85,
+#                       2774.85,
+#                       774.98,
+#                       12287.95,
+#                       3411.88,
+#                       2679.15,
+#                       1773.20,
+#                       1391.187,
+#                       926.6218, #El salvador
+#                       1003.07,
+#                       528.64,
+#                       5091.94,
+#                       1092.50,
+#                       4124.64, #Hungary 
+#                       472.26,
+#                       3306.80,
+#                       24349.61, #Ireland
+#                       8387.02,
+#                       1092.02,
+#                       1140.74,
+#                       458.90,#Kenya
+#                       315.99,
+#                       30898.45,
+#                       8754.56,
+#                       2131.54,
+#                       2306.70,
+#                       815.85,
+#                       1170.91,#Namibia
+#                       12736.97,
+#                       449.00,
+#                       1609.64,#North Macedonia
+#                       234.78,
+#                       1245.03,#Paraguay
+#                       12397.73,
+#                       8477.50,
+#                       867.60,
+#                       3536.77,
+#                       2570.14,#Russia
+#                       200.58,
+#                       994364.69650,#SAMOA #CHECK THIS
+#                       5197.35,
+#                       361.94151,#Senegal,
+#                       2174.32,
+#                       5362.58,
+#                       1304.37,
+#                       7185.26,
+#                       239.26,
+#                       948.53,
+#                       262.53
+#                       )
+# covid_gdp2 = covid_gdp2 %>% add_column(gdp_per_capita_USdollar = gdp_per_capita_US)
+
+
+
 
