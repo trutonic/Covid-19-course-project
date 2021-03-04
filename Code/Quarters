@@ -19,8 +19,4 @@ AF.Q4 <- covid %>%
    mutate(region=Country)
 view(AF.Q4)
 
-#sum of all q1 cases in africa
-c.AF.Q1 <- sum(AF.Q1$Cumulative_cases)
-c.AF.Q1
-
 #please let me know if theres an easier/more condensed way to do this
