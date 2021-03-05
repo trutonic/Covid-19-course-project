@@ -223,18 +223,33 @@ for (i in 1:length(covid_gdp$Change_3_months)){
 
 covid_gdp$Change_3_months = numeric_change_3_months
 
-#Make into a tibble  
+#Make into a tibble 
 covid_gdp = tibble(covid_gdp)
 covid_gdp$Latest_value =  as.numeric(covid_gdp$Latest_value)
 covid_gdp2 = covid_gdp %>% select(Location, Change_3_months,prp_case_increase,gdp_per_capita)
+covid_gdp2$rank_change = rank(covid_gdp2$Change_3_months)
+covid_gdp2$change_cat = cut(covid_gdp2$rank_change, breaks = c(0,20,40,59), labels = c(1, 2, 3))
+covid_gdp2 = covid_gdp2 %>% select(Location, prp_case_increase, change_cat)
+
+gdp_per_capita = read.csv(file = 'gdp per capita.csv')
+covid_gdp2 = merge(covid_gdp2, gdp_per_capita, by.x = c("Location"), by.y = c("ï..Location"))
+covid_gdp2$rank_gdp = rank(covid_gdp2$GDP.per.capita)
+covid_gdp2$gdp_cat = cut(covid_gdp2$rank_gdp, breaks = c(0,20,40,59), labels = c(1, 2, 3))
+covid_gdp2 = covid_gdp2 %>% select(Location, prp_case_increase, change_cat, gdp_cat)
+
+aov_model = aov(prp_case_increase ~ change_cat + gdp_cat, data = covid_gdp2)
+summary(aov_model)
 
 
-################ `covid_gpa2`################
+
+################ `covid_gdp2`################
 
 # Change_3_months - %GDP change from Q2
 # prp_Case_increase - proportion of the population infected Q3
-# gdp_per_capita - total GDP per country population
+# change_cat - %GDP change from Q2 [1: Least, 2: Moderate, 3: Most]
+# gdp_cat - GDP per capita [1: Poor, 2: Moderate, 3: Wealthy]
 
+#############################################
 #############################################
 
 ##NOTICED THAT GDP IS IN LOCAL CURRENCY -> NEED TO CHANGE TO US DOLLAR
