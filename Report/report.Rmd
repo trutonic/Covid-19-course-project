@@ -824,7 +824,7 @@ covid_gdp$Change_3_months = numeric_change_3_months
 #Make into a tibble  
 covid_gdp = tibble(covid_gdp)
 covid_gdp$Latest_value =  as.numeric(covid_gdp$Latest_value)
-covid_gdp2 = covid_gdp %>% select(Location, Change_3_months,prp_case_increase,gdp_per_capita)
+covid_gdp2 = covid_gdp %>% select(Location, Change_3_months,prp_case_increase)
 covid_gdp2$rank_increase = rank(covid_gdp2$prp_case_increase)
 covid_gdp2$increase_cat = cut(covid_gdp2$rank_increase, breaks = c(0,20,40,59), labels = c(1, 2, 3))
 covid_gdp2 = covid_gdp2 %>% select(Location, increase_cat, Change_3_months)
