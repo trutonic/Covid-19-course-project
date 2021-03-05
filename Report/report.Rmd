@@ -1,6 +1,6 @@
 ---
-title: "Exploratory Analysis on the effect of COVID-19 on GDP"
-author: "(Your name, student ID here, and your team ID)"
+title: "Exploratory Analysis on the Effect of COVID-19 on GDP"
+author: "Ian Whaling, 914014658, Team ID: 9"
 date: "March 3rd, 2021"
 output:
   html_document:
@@ -36,7 +36,7 @@ The population that we are interested in is the proportion of people that are in
 To measure the differences across countries' abilities to recover from the initial impacts of COVID-19, we choose to split the data into fiscal quarters, which are quarter periods that align with a regular calendar year. We decided to use quarter 3 in 2020 or Q3 to measure the recovery from the initial impacts of COVID-19 mainly seen in Q2. To keep within this time frame, we summed all the COVID-19 cases within Q3, which spans from July 1, 2020 to September 30, 2020. 
 The variables that we chose to include are “Change_3_months” which explains the percentage change in GDP for each country. We also included “increase_cat”, which groups the countries based on the proportion of their populations infected by COVID-19. “Gdp_cat” groups countries based on their relative wealth, measured by GDP per capita. 
 
-```{r}
+```{r, echo = FALSE}
 covid = read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
 range(covid$Date_reported)
 length(unique(covid$Country))
@@ -876,7 +876,7 @@ perms.KW = sapply(1:2000,function(i){
   KW.i= 1/SR.2*sum(ni*(Ri - (N+1)/2)^2)
   return(KW.i)
 })
-p.value = mean(perms.KW > KW.OBS); p.value
+p.value = mean(perms.KW > KW.OBS);
 ```
 We perform 2000 permutations of Kruskal-Wallis and compare them to our observed statistic to calculate a p-value of 0.254 for our Kruskal-Wallis test, which at significance level of $\alpha = 0.05$, we may not reject the null hypothesis and must conclude that all CDFs are equivalent and there is no difference in variation of percentage GDP change in quarter 3 between each group of relative proportions of the population infected with COVID-19 in quarter 3. Given the failure of our non-parametric test to reject the null hypothesis, which does not rely on the same assumptions of the parametric ANOVA test, our conclusion that the variation observed in the percentage GDP change in quarter 3 between each country may not be explained by any group in the factor of proportions of the population infected with COVID-19 is reinforced.
 
