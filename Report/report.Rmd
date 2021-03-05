@@ -1,6 +1,6 @@
 ---
 title: "Exploratory Analysis on the Effect of COVID-19 on GDP"
-author: "Ian Whaling, 914014658, Team ID: 9"
+author: "Ian Whaling, 914014658, Samuel Becerra Martinez, Esmeralda Buenrostro, Ryan Truong 916857334, Team ID: 9"
 date: "March 3rd, 2021"
 output:
   html_document:
@@ -886,19 +886,22 @@ In our examination of the question of how COVID-19 affected economies around the
 
 # Acknowledgement {-}
 
-<span style='color:blue'>
-By default, it is assumed that you have discussed this project with your teammates and instructors. List any other people that you have discussed this project with. 
-</span>
-
 # Reference {-}
 
 WHO Coronavirus Disease (COVID-19) Global Data. (n.d.). Retrieved March 03, 2021, from https://covid19.who.int/
 Gross Domestic Product (GDP) by country: the latest data. (n.d.). Retrieved March 03, 2021, from https://www.theglobaleconomy.com/rankings/gdp_current_local_currency/
 GDP per capita, current dollars - Country rankings. (n.d.). Retrieve March 03, 2021, from https://www.theglobaleconomy.com/rankings/GDP_per_capita_current_dollars/
 
-<span style='color:blue'>
-List any references you cited in the report. See [here](https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/in_text_citations_the_basics.html) for the APA format. 
-</span> 
+“Gross Domestic Product (GDP) around the World.” TheGlobalEconomy.com, www.theglobaleconomy.com/rankings/gdp_current_local_currency/. 
+
+Pradyot Ranjan Jena, Ritanjali Majhi, Rajesh Kalli, Shunsuke Managi, Babita Majhi,Impact of COVID-19 on GDP of major economies: Application of the artificial neural network forecaster, Economic Analysis and Policy, Volume 69, 2021, Pages 324-339, ISSN 0313-5926, https://doi.org/10.1016/j.eap.2020.12.013.(https://www.sciencedirect.com/science/article/pii/S0313592620304604)
+
+Luo, Shaowen and Tsang, Kwok Ping, China and World Output Impact of the Hubei Lockdown During the Coronavirus Outbreak (October 2020). Contemporary Economic Policy, Vol. 38, Issue 4, pp. 583-592, 2020, Available at SSRN: https://ssrn.com/abstract=3704366 or http://dx.doi.org/10.1111/coep.12482
+
+# Appendix {-}
+
+```{r ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
+```
 
 # Session info {-}
 
