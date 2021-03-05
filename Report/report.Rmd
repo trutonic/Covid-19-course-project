@@ -1,5 +1,5 @@
 ---
-title: "Template for Project 2 Data Analysis Report (replace with own title)"
+title: "Exploratory Analysis on the effect of COVID-19 on GDP"
 author: "(Your name, student ID here, and your team ID)"
 date: "(Date on which the report is written)"
 output:
