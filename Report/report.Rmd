@@ -29,7 +29,7 @@ These results may give us an indication of how economies are likely to respond t
 
 For our data, we use a csv file containing COVID-19 from the WHO website which can be found [here](https://covid19.who.int/WHO-COVID-19-global-data.csv). This dataset consists of 8 variables: the date reported, country code, country, WHO region, new cases, cumulative cases, new deaths, and cumulative deaths. Dates reported are calendar dates ranging from January 3, 2020 to present. There are 116 distinct countries with two-letter country codes to identify the country. These countries are broken up into 6 geographic regions: EMRO, EURO, AFRO, WPRO, AMRO and SEARO. New cases, cumulative cases, new deaths, and cumulative deaths utilize numerical values to describe quantities of COVID-19 infections and deaths. Information about WHO regions and country codes can be found on the WHO website. The dataset is maintained and updated regularly by WHO. The WHO makes a statement about the dataset in their overview that "all counts are subject to variations in case detection, definitions, laboratory test, and reporting strategies between countries, states, and territories." The case/death data is based on WHO case definitions which can be found [here](https://www.who.int/publications/i/item/who-2019-nCoV-surveillanceguidance-2020.8). The collection of the data was started on the 3rd of January 2020, and collection is still on-going at the time this paper was written. The WHO sources their data through cases and deaths communicated by the International Health Regulation and reconciles this data through official ministries of health websites and social media accounts. Negative numbers may appear in the dataset as reconciliation exercises are performed to keep the data as accurate as possible. 
 
-The population that we are interested in is nations and the change in GDP. We will be attempting to model this population respective to their levels of proportion of people that are infected with COVID-19 and GDP per capita (as a measure of overall wealth).
+The population that we are interested in is nations and their change in GDP. We will be attempting to model this population respective to their levels of proportion of people that are infected with COVID-19 and GDP per capita (as a measure of overall wealth).
 
 To measure the differences across countries' abilities to recover from the initial impacts of COVID-19, we choose to split the data into fiscal quarters, which are quarter periods that align with a regular calendar year. We decided to use quarter 3 in 2020 or Q3 to measure the recovery from the initial impacts of COVID-19 mainly seen in Q2. To keep within this time frame, we summed all the COVID-19 cases within Q3, which spans from July 1, 2020 to September 30, 2020. The variables that we chose to include are “Change_3_months” which explains the percentage change in GDP for each country. We also included “increase_cat”, which groups the countries based on the proportion of their populations infected by COVID-19. “Gdp_cat” groups countries based on their relative wealth, measured by GDP per capita. 
 
@@ -892,16 +892,15 @@ By default, it is assumed that you have discussed this project with your teammat
 
 # Reference {-}
 
+WHO Coronavirus Disease (COVID-19) Global Data. (n.d.). Retrieved March 03, 2021, from https://covid19.who.int/
+Gross Domestic Product (GDP) by country: the latest data. (n.d.). Retrieved March 03, 2021, from https://www.theglobaleconomy.com/rankings/gdp_current_local_currency/
+GDP per capita, current dollars - Country rankings. (n.d.). Retrieve March 03, 2021, from https://www.theglobaleconomy.com/rankings/GDP_per_capita_current_dollars/
+
 <span style='color:blue'>
 List any references you cited in the report. See [here](https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/in_text_citations_the_basics.html) for the APA format. 
 </span> 
 
 # Session info {-}
-
-<span style='color:blue'>
-Report information of your `R` session for reproducibility. 
-</span> 
-
 
 ```{r}
 sessionInfo()
