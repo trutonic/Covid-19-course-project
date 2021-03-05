@@ -245,8 +245,7 @@ summary(aov_model)
 ################ `covid_gdp2`################
 
 # Change_3_months - %GDP change from Q2
-# prp_Case_increase - proportion of the population infected Q3
-# change_cat - %GDP change from Q2 [1: Least, 2: Moderate, 3: Most]
+# increase_cat - proportion of the population infected Q3 [1: Least, 2: Moderate, 3: Most]
 # gdp_cat - GDP per capita [1: Poor, 2: Moderate, 3: Wealthy]
 
 #############################################
