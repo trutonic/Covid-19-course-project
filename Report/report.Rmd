@@ -586,7 +586,7 @@ This data set contains 59 observations with 2 variables which is the country nam
 
 ```{r,echo=FALSE}
 gdp_per_capita = tibble(read.csv(file = 'gdp per capita.csv'))
-ggplot(data=gdp_per_capita, aes(x= reorder(ï..Location,GDP.per.capita), y=GDP.per.capita)) +
+ggplot(data=gdp_per_capita, aes(x= reorder(Location,GDP.per.capita), y=GDP.per.capita)) +
   geom_bar(stat="identity")+
   coord_flip()+# Horizontal bar plot 
   xlab("US Dollars")+
@@ -830,7 +830,7 @@ covid_gdp2$increase_cat = cut(covid_gdp2$rank_increase, breaks = c(0,20,40,59), 
 covid_gdp2 = covid_gdp2 %>% select(Location, increase_cat, Change_3_months)
 
 gdp_per_capita = read.csv(file = 'gdp per capita.csv')
-covid_gdp2 = merge(covid_gdp2, gdp_per_capita, by.x = c("Location"), by.y = c("ï..Location"))
+covid_gdp2 = merge(covid_gdp2, gdp_per_capita, by.x = c("Location"), by.y = c("Location"))
 covid_gdp2$rank_gdp = rank(covid_gdp2$GDP.per.capita)
 covid_gdp2$gdp_cat = cut(covid_gdp2$rank_gdp, breaks = c(0,20,40,59), labels = c(1, 2, 3))
 covid_gdp2 = covid_gdp2 %>% select(Location, Change_3_months, increase_cat, gdp_cat)
