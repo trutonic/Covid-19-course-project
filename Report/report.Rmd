@@ -878,7 +878,7 @@ perms.KW = sapply(1:2000,function(i){
 })
 p.value = mean(perms.KW > KW.OBS); p.value
 ```
-We perform 2000 permutations and compare them to our observed Kruskal-Wallis statistic to calculate a p-value of 0.254 for our Kruskal-Wallis test, which at significance level of $\alpha = 0.05$, we may not reject the null hypothesis and must conclude that all CDFs are equivalent and there is no difference in variation of percentage GDP change in quarter 3 between each group of relative proportions of the population infected with COVID-19 in quarter 3. Given the failure of our non-parametric test to reject the null hypothesis, which does not rely on the same assumptions of the parametric ANOVA test, our conclusion that the variation observed in the percentage GDP change in quarter 3 between each country may not be explained by any group in the factor of proportions of the population infected with COVID-19 is reinforced.
+We perform 2000 permutations of Kruskal-Wallis and compare them to our observed statistic to calculate a p-value of 0.254 for our Kruskal-Wallis test, which at significance level of $\alpha = 0.05$, we may not reject the null hypothesis and must conclude that all CDFs are equivalent and there is no difference in variation of percentage GDP change in quarter 3 between each group of relative proportions of the population infected with COVID-19 in quarter 3. Given the failure of our non-parametric test to reject the null hypothesis, which does not rely on the same assumptions of the parametric ANOVA test, our conclusion that the variation observed in the percentage GDP change in quarter 3 between each country may not be explained by any group in the factor of proportions of the population infected with COVID-19 is reinforced.
 
 # Conclusion
 
