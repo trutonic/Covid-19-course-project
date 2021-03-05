@@ -7,8 +7,9 @@ output:
     df_print: paged
     number_sections: yes
 ---
-```{r, echo=FALSE}
+```{r, echo=FALSE,warning=FALSE,message=FALSE}
 library(tidyverse)
+library(rworldmap)
 ```
 
 # Abstract 
@@ -35,26 +36,809 @@ To measure the differences across countries' abilities to recover from the initi
 The variables that we chose to include are “Change_3_months” which explains the percentage change in GDP for each country. We also included “increase_cat”, which groups the countries based on the proportion of their populations infected by COVID-19. “Gdp_cat” groups countries based on their relative wealth, measured by GDP per capita. 
 
 ```{r}
+covid = read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
 range(covid$Date_reported)
 length(unique(covid$Country))
 ```
 
 # Descriptive analysis 
 
-```{r}
-covid = read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
-covid$Case_mortality_rate = covid$Cumulative_cases / covid$Cumulative_deaths
-covid$Case_mortality_rate[is.nan(covid$Case_mortality_rate)] = 0
+## COVID-19 WHO Dataset
 
-summary(covid$Date_reported)
-summary(covid$New_cases)
-summary(covid$Cumulative_cases)
-summary(covid$New_deaths)
-summary(covid$Cumulative_deaths)
+### Countries
+The COVID-19 data set that came from the WHO website contains 101,199 observations with 8 variables as previously stated. 237 countries are included in this dataset and can be shown in the following map: 
+
+```{r, message=FALSE,echo=FALSE, warning=FALSE}
+original_covid_data = read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
+# covid$Case_mortality_rate = covid$Cumulative_cases / covid$Cumulative_deaths
+# covid$Case_mortality_rate[is.nan(covid$Case_mortality_rate)] = 0
+# 
+# summary(covid$Date_reported)
+# summary(covid$New_cases)
+# summary(covid$Cumulative_cases)
+# summary(covid$New_deaths)
+# summary(covid$Cumulative_deaths)
+iso3 <- read.csv("iso3.csv")
+names = c()
+codes = c()
+for (i in 0:dim(iso3)[1]){
+  row = iso3[i,]
+  c = substr(row,1,3)
+  n = substr(row,5,nchar(row))
+  names = append(names, n)
+  codes = append(codes, c)
+}
+iso3_df = tibble(country = names, iso3 = codes, using_these_countries = rep(1,length(names)))
+iso3_df = iso3_df %>% add_row(country = "occupied Palestinian territory, including east Jerusalem",
+                              iso3 = "PSE",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Republic of Korea",
+                              iso3 = "KOR",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Republic of Moldova",
+                              iso3 = "MDA",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "United Republic of Tanzania",
+                              iso3 = "TZA",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "The United Kingdom",
+                              iso3 = "GBR",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Democratic Republic of the Congo",
+                              iso3 = "COD",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Côte d’Ivoire",
+                              iso3 = "CIV",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Democratic People's Republic of Korea",
+                              iso3 = "PRK",
+                              using_these_countries = 1)
+
+who_countries = original_covid_data%>% distinct(Country)
+formap = merge(who_countries,iso3_df, by.x = c("Country"), by.y =c("country") )
+formap = formap[,c(2,3)]
+
+#Plot 
+Map <- joinCountryData2Map(formap, joinCode = "ISO3", nameJoinColumn="iso3")
+mapCountryData(Map, nameColumnToPlot="using_these_countries", catMethod = "categorical",
+               missingCountryCol = gray(.8),
+               mapTitle = "Countries in the WHO dataset",
+               addLegend = FALSE)
 ```
 
-# Inferential analysis 
+### Dates
 
+The dataset contains information about the countries since 2020-01-03 and the latest recorded date is 2021-03-04.
+
+However we are only interested in the year 2020, thus the latest 2020 date is 12-31. We can see a summary statistics of the dates shown below: 
+ 
+```{r,echo=FALSE}
+dates_2020 = tibble(Date_reported= original_covid_data$Date_reported)
+dates_2020 = subset(dates_2020,Date_reported >= "2020-01-01" & Date_reported <= "2020-12-31")
+summary(dates_2020)
+```
+
+In our model, we decided to focus our interest not on the days but rather the quarters in the year. We manipulated the data to get the number of new cases, cumulative cases, new deaths, and cumulative death in a quarterly basis. The dates for each quarter are as follows:
+
+- Quarter 1:
+  - 2020-01-01 to 2020-03-31
+- Quarter 2:
+  - 2020-04-01 to 2020-06-30
+- Quarter 3:
+  - 2020-07-01 to 2020-09-30
+- Quarter 4:
+  - 2020-10-01 to 2020-12-31
+
+### Quarters  
+
+As stated in the previous section, we decided to look at the data on quarterly time frames rather by days. The summary statistics for each variable per quarter are as follows: 
+
+Where, 
+
+- starting cases = number of cases at the begining of a quarter
+- ending cases = number of cases at the end of a quarter
+- total cases = the number of new cases (ie. the differnce between ending and starting cases)
+- ... (same logic extends for 'deaths')
+
+```{r,echo=FALSE}
+covid <- original_covid_data %>% arrange(Date_reported)
+
+
+get.quarter.info = function(covid){
+  covid_quarter = tibble(quarter = "dmmy", country = "dmmy", starting_cases = -1, ending_cases = -1, total_cases = -1,
+                         starting_deaths = -1, ending_deaths = -1, total_deaths = -1)
+  
+  all_countries = covid %>% distinct(Country)
+  for (country_name in all_countries){
+    one_country <- covid %>% filter(Country == country_name)
+    Q1 = subset(one_country,Date_reported >= "2020-01-01" & Date_reported <= "2020-03-31")
+    Q2 = subset(one_country,Date_reported >= "2020-04-01" & Date_reported <= "2020-06-30")
+    Q3 = subset(one_country,Date_reported >= "2020-07-01" & Date_reported <= "2020-09-30")
+    Q4 = subset(one_country,Date_reported >= "2020-10-01" & Date_reported <= "2020-12-31")
+    
+    Q1min =  Q1 %>% filter(Date_reported == min(Q1$Date_reported))
+    Q1max =  Q1 %>% filter(Date_reported == max(Q1$Date_reported))
+    
+    Q2min =  Q2 %>% filter(Date_reported == min(Q2$Date_reported))
+    Q2max =  Q2 %>% filter(Date_reported == max(Q2$Date_reported))
+    
+    Q3min =  Q3 %>% filter(Date_reported == min(Q3$Date_reported))
+    Q3max =  Q3 %>% filter(Date_reported == max(Q3$Date_reported))
+    
+    Q4min =  Q4 %>% filter(Date_reported == min(Q4$Date_reported))
+    Q4max =  Q4 %>% filter(Date_reported == max(Q4$Date_reported))
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q1 / 2020", country = country_name,
+                                              starting_cases= Q1min$Cumulative_cases, ending_cases = Q1max$Cumulative_cases, total_cases = Q1max$Cumulative_cases - Q1min$Cumulative_cases,
+                                              starting_deaths= Q1min$Cumulative_deaths, ending_deaths = Q1max$Cumulative_deaths, total_deaths = Q1max$Cumulative_deaths - Q1min$Cumulative_deaths)
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q2 / 2020", country = country_name,
+                                              starting_cases= Q2min$Cumulative_cases, ending_cases = Q2max$Cumulative_cases, total_cases = Q2max$Cumulative_cases - Q2min$Cumulative_cases,
+                                              starting_deaths= Q2min$Cumulative_deaths, ending_deaths = Q2max$Cumulative_deaths, total_deaths = Q2max$Cumulative_deaths - Q2min$Cumulative_deaths)
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q3 / 2020", country = country_name,
+                                              starting_cases= Q3min$Cumulative_cases, ending_cases = Q3max$Cumulative_cases, total_cases = Q3max$Cumulative_cases - Q3min$Cumulative_cases,
+                                              starting_deaths= Q3min$Cumulative_deaths, ending_deaths = Q3max$Cumulative_deaths, total_deaths = Q3max$Cumulative_deaths - Q3min$Cumulative_deaths)
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q4 / 2020", country = country_name,
+                                              starting_cases= Q4min$Cumulative_cases, ending_cases = Q4max$Cumulative_cases, total_cases = Q4max$Cumulative_cases - Q4min$Cumulative_cases,
+                                              starting_deaths= Q4min$Cumulative_deaths, ending_deaths = Q4max$Cumulative_deaths, total_deaths = Q4max$Cumulative_deaths - Q4min$Cumulative_deaths)
+  }
+  
+  return(covid_quarter[-1,]) #Return all but first row because that was a dummy row
+}
+
+Qcovid = get.quarter.info(covid = covid)
+quarter1 = Qcovid %>% filter(quarter == "Q1 / 2020")
+quarter2 = Qcovid %>% filter(quarter == "Q2 / 2020")
+quarter3 = Qcovid %>% filter(quarter == "Q3 / 2020")
+quarter4 = Qcovid %>% filter(quarter == "Q4 / 2020")
+
+```
+
+**Quarter 1:**
+```{r,echo=FALSE}
+summary(quarter1)
+```
+**Quarter 2:**
+```{r,echo=FALSE}
+summary(quarter2)
+```
+**Quarter 3:**
+```{r,echo=FALSE}
+summary(quarter3)
+```
+**Quarter 4:**
+```{r,echo=FALSE}
+summary(quarter4)
+```
+
+
+### Cases 
+
+We can take a look at how the average number of new cases changes in each quarter. From the plot below, we can see that the number of average cases across all countries seem to increase from Quarter 1 of 2020 to Quarter 4: 
+```{r,echo=FALSE}
+mean_cases_per_q = tibble(quarter = c(1,2,3, 4),
+                          means = c(mean(quarter1$total_cases),
+                                    mean(quarter2$total_cases),
+                                    mean(quarter3$total_cases),
+                                    mean(quarter4$total_cases)))
+
+ggplot(data=mean_cases_per_q,aes(x=quarter, y=means)) + 
+  geom_line()+
+  geom_point()+
+  xlab("Quarter (ie. 1:Q1)")+
+  ylab("Number of Cases") +
+  ggtitle("Average Number of New Cases per Quarter")
+
+```
+
+We can also plot a line graph to identify the behavior of the number of new cases per country. As we can see from the graph below, we have a one country that with a great number of new cases in quarter 4.
+```{r,echo=FALSE}
+
+Qcovid$category = rep(-1,dim(Qcovid)[1])
+index1 = which(Qcovid$quarter == "Q1 / 2020")
+index2 = which(Qcovid$quarter == "Q2 / 2020")
+index3 = which(Qcovid$quarter == "Q3 / 2020")
+index4 = which(Qcovid$quarter == "Q4 / 2020")
+
+Qcovid$category[index1] = 1
+Qcovid$category[index2] = 2
+Qcovid$category[index3] = 3
+Qcovid$category[index4] = 4
+
+ggplot(data=Qcovid,aes(x=category, y=total_cases, group=country )) + 
+  geom_line(alpha=0.3)+
+  geom_point(alpha=0.3)+
+  xlab("Quarter (ie. 1:Q1)")+
+  ylab("Number of Cases") +
+  ggtitle("Country's new cases per quarter")
+```
+
+If we remove the top 3 countries we are able to zoom on the countries with less than 2,500,000 cases in quarter 4 of 2020.We can clearly see that the number of new cases in each country significantly increased from the beginning of the Pandemic (Quarter 1).
+
+```{r,echo=FALSE}
+outlier_country = Qcovid$country[which(Qcovid$total_cases == max(Qcovid$total_cases))]
+Qcovid_copy =Qcovid[-c(which(Qcovid$country == outlier_country)),]
+
+outlier_country = Qcovid_copy$country[which(Qcovid_copy$total_cases == max(Qcovid_copy$total_cases))]
+Qcovid_copy =Qcovid_copy[-c(which(Qcovid_copy$country == outlier_country)),]
+
+outlier_country = Qcovid_copy$country[which(Qcovid_copy$total_cases == max(Qcovid_copy$total_cases))]
+Qcovid_copy =Qcovid_copy[-c(which(Qcovid_copy$country == outlier_country)),]
+
+Qcovid_copy$category = rep(-1,dim(Qcovid_copy)[1])
+index1 = which(Qcovid_copy$quarter == "Q1 / 2020")
+index2 = which(Qcovid_copy$quarter == "Q2 / 2020")
+index3 = which(Qcovid_copy$quarter == "Q3 / 2020")
+index4 = which(Qcovid_copy$quarter == "Q4 / 2020")
+
+Qcovid_copy$category[index1] = 1
+Qcovid_copy$category[index2] = 2
+Qcovid_copy$category[index3] = 3
+Qcovid_copy$category[index4] = 4
+
+ggplot(data=Qcovid_copy,aes(x=category, y=total_cases, group=country )) + 
+  geom_line(alpha=0.2)+
+  geom_point(alpha=0.2)+
+  xlab("Quarter (ie. 1:Q1)")+
+  ylab("Number of Cases") +
+  ggtitle("Country's new cases per quarter")
+```
+
+The darker contrast in the lines and points lets us know that majority of the countries in Q4 have less than 500,000 new cases. If we look at the summary statistic for quarter 4 at the beginning of section 4.1.3 we are able to see that the mean for the total number of new cases for all countries is around 202,655; however the median lets us know that at least half the data has less than 5,513 new cases in Quarter 4. 
+
+### Deaths
+We can take a look at how the average number of new deaths changes in each quarter. From the plot below, we can see that the number of average cases across all countries seem to increase from Quarter 1 of 2020 to Quarter 4; however from Quarter 2 to Quarter 3 we see that the rate of deaths stays constant: 
+
+```{r,echo=FALSE}
+mean_deaths_per_q = tibble(quarter = c(1,2,3, 4),
+                          means = c(mean(quarter1$total_deaths),
+                                    mean(quarter2$total_deaths),
+                                    mean(quarter3$total_deaths),
+                                    mean(quarter4$total_deaths)))
+
+ggplot(data=mean_deaths_per_q,aes(x=quarter, y=means)) + 
+  geom_line()+
+  geom_point()+
+  xlab("Quarter (ie. 1:Q1)")+
+  ylab("Number of Deaths") +
+  ggtitle("Average Number of Deaths at each Quarter")
+
+```
+
+We can also plot a line graph to identify the behavior of the number of deaths per country. One important thing to point out is that the top line (country) had a huge increase in the number of deaths from Q1 to Q2, with a noticble drop at Q3, but back to a great number of deaths in Q4.
+```{r,echo=FALSE}
+ggplot(data=Qcovid,aes(x=category, y=total_deaths, group=country )) + 
+  geom_line(alpha=0.3)+
+  geom_point(alpha=0.3)+
+  xlab("Quarter (ie. 1:Q1)")+
+  ylab("Number of Deaths") +
+  ggtitle("Country's deaths per quarter")
+```
+
+If we remove the top 4 countries we are able to zoom on the countries with less than 50,000 deaths in quarter 4 of 2020. 
+```{r,echo=FALSE}
+outlier_country = Qcovid$country[which(Qcovid$total_deaths == max(Qcovid$total_deaths))]
+Qcovid_copy2 =Qcovid[-c(which(Qcovid$country == outlier_country)),]
+
+outlier_country = Qcovid_copy2$country[which(Qcovid_copy2$total_deaths == max(Qcovid_copy2$total_deaths))]
+Qcovid_copy2 =Qcovid_copy2[-c(which(Qcovid_copy2$country == outlier_country)),]
+
+outlier_country = Qcovid_copy2$country[which(Qcovid_copy2$total_deaths == max(Qcovid_copy2$total_deaths))]
+Qcovid_copy2 =Qcovid_copy2[-c(which(Qcovid_copy2$country == outlier_country)),]
+
+outlier_country = Qcovid_copy2$country[which(Qcovid_copy2$total_deaths == max(Qcovid_copy2$total_deaths))]
+Qcovid_copy2 =Qcovid_copy2[-c(which(Qcovid_copy2$country == outlier_country)),]
+
+
+ggplot(data=Qcovid_copy2,aes(x=category, y=total_deaths, group=country )) + 
+  geom_line(alpha=0.2)+
+  geom_point(alpha=0.2)+
+  xlab("Quarter (ie. 1:Q1)")+
+  ylab("Number of Deaths") +
+  ggtitle("Country's Deaths per quarter")
+```
+
+As we can see the most countries had an increase in deaths from Q1 to Q2. From Q2 to Q3 we can see that some countries resulted in a negative change while other had an increase in deaths. On average, the rate of deaths from Q2 to Q3 seems constant (see 1st graph on section 4.1.5). In quarter 4 we are able to see that most countries had an increase in deaths from Q3 to Q4. It might be hard to spot these trends from this graph, but the summary statistics from section 4.1.3 support these claims.
+
+## GDP Dataset 
+The GDP dataset we used can be found here [here](https://www.theglobaleconomy.com/rankings/gdp_current_local_currency/).
+This data set contains 120 observations with 5 variables: 
+
+- Countries: The name of the country 
+- Latest_data_from: The date of which the latest data is from
+- Latest_value: GDP in billion local currency units
+- Change_3_months: The change of GDP from past quarter to current
+- Change_12_months: The change of GDP since last year 
+
+### Countries
+There is a total of 119 countries in this dataset (the remaining 1 is not a country). We can visualize which countries by observing the following map: 
+```{r,echo=FALSE}
+gdp <- read.csv(file = 'gdp.csv', header = FALSE)
+
+
+#DATA PREPROCESSIG 
+
+country_names = c()
+data_from = c()
+latest_value = c()
+change_3_months = c()
+change_12_months = c()
+
+#Get Country names 
+range = seq(1,dim(gdp)[1],by = 6)
+for (i in range){
+  country_names = append(country_names, gdp[i,1])
+}
+
+#Get datafrom 
+range = seq(2,dim(gdp)[1],by = 6)
+for (i in range){
+  data_from = append(data_from, gdp[i,1])
+}
+
+#Get latest value  
+range = seq(3,dim(gdp)[1],by = 6)
+for (i in range){
+  latest_value = append(latest_value, gdp[i,1])
+}
+
+#Get 3 month change  
+range = seq(4,dim(gdp)[1],by = 6)
+for (i in range){
+  change_3_months = append(change_3_months, gdp[i,1])
+}
+
+#Get 12 month change  
+range = seq(5,dim(gdp)[1],by = 6)
+for (i in range){
+  change_12_months = append(change_12_months, gdp[i,1])
+}
+
+#Merge into a tibble 
+gdp <- tibble(Countries=country_names,
+              Latest_data_from = data_from,
+              Latest_value=latest_value,
+              Change_3_months=change_3_months,
+              Change_12_months= change_12_months)
+
+iso3 <- read.csv("iso3.csv")
+names = c()
+codes = c()
+for (i in 0:dim(iso3)[1]){
+  row = iso3[i,]
+  c = substr(row,1,3)
+  n = substr(row,5,nchar(row))
+  names = append(names, n)
+  codes = append(codes, c)
+}
+iso3_df = tibble(country = names, iso3 = codes, using_these_countries = rep(1,length(names)))
+iso3_df = iso3_df %>% add_row(country = "Palestine",
+                              iso3 = "PSE",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Republic of Korea",
+                              iso3 = "PRK",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Moldova",
+                              iso3 = "MDA",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Tanzania",
+                              iso3 = "TZA",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Bolivia",
+                              iso3 = "BOL",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Brunei",
+                              iso3 = "BRN",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Burma (Myanmar)",
+                              iso3 = "MMR",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Cape Verde",
+                              iso3 = "CPV",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Iran",
+                              iso3 = "IRN",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Russia",
+                              iso3 = "RUS",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "South Korea",
+                              iso3 = "KOR",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Taiwan",
+                              iso3 = "TWN",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "USA",
+                              iso3 = "USA",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "United Kingdom",
+                              iso3 = "GBR",
+                              using_these_countries = 1)
+iso3_df = iso3_df %>% add_row(country = "Vietnam",
+                              iso3 = "VNM",
+                              using_these_countries = 1)
+dmy = merge(gdp,iso3_df, by.x = c("Countries"), by.y =c("country") )
+dmy= dmy[,c(6,7)]
+
+Map <- joinCountryData2Map(dmy, joinCode = "ISO3", nameJoinColumn="iso3")
+mapCountryData(Map, nameColumnToPlot="using_these_countries", catMethod = "categorical",
+               missingCountryCol = gray(.8),
+               mapTitle = "Countries in the  dataset",
+               addLegend = FALSE)
+gdp = gdp[-1,]
+gdp$Latest_value = as.numeric(gdp$Latest_value)
+
+#Change 'Change_3_months' type to numeric instead of char 
+numeric_change_3_months = c()
+for (i in 1:length(gdp$Change_3_months)){
+  word = gdp$Change_3_months[i]
+  num = as.numeric(substr(word,1,nchar(word)-1))
+  numeric_change_3_months = append(numeric_change_3_months,num)
+}
+
+gdp$Change_3_months = numeric_change_3_months
+
+#Change 'Change_12_months' type to numeric instead of char 
+numeric_change_12_months = c()
+for (i in 1:length(gdp$Change_12_months)){
+  word = gdp$Change_12_months[i]
+  num = as.numeric(substr(word,1,nchar(word)-1))
+  numeric_change_12_months = append(numeric_change_12_months,num)
+}
+
+gdp$Change_12_months = numeric_change_12_months
+```
+
+### Quarters  
+
+As stated in the previous sections, we decided to look at the data on quarterly time frames. Since gdp is measured annually/quarterly, this dataset was not too difficult to find with a time frame that worked for us. Here is the distribution for the gdp information at each quarter.
+```{r,echo=FALSE}
+n1 = dim(gdp %>% filter(Latest_data_from == "Q1 / 2020" ))[1]
+n2 = dim(gdp %>% filter(Latest_data_from == "Q2 / 2020" ))[1]
+n3 = dim(gdp %>% filter(Latest_data_from == "Q3 / 2020" ))[1]
+n4 = dim(gdp %>% filter(Latest_data_from == "Q4 / 2020" ))[1]
+
+data1 = tibble(quarter=c("Q1 / 2020","Q2 / 2020","Q3 / 2020","Q4 / 2020"),
+                      number_of_countries= c(n1,n2,n3,n4))
+# # Basic piechart
+# ggplot(data, aes(x="", y=number_of_countries, fill=quarter)) +
+#   geom_bar(stat="identity", width=1, color="white") +
+#   coord_polar("y", start=0)+
+#   
+#   theme_void() # remove background, grid, numeric labels
+
+ggplot(data=data1, aes(x=quarter, y=number_of_countries)) +
+  geom_bar(stat="identity")+
+  xlab("Quarter")+
+  ylab("Number of Countries") +
+  ggtitle("Country's GDP information at each Quarter")
+```
+
+As we can see, the distribution is not uniform. There seems to be more information about a country's GDP at Q3.
+
+
+We can examine a summary statistic at each quarter; however, since the GDP is in local currency we should exclude from showing the latest value since each country is not using the same currency. Instead, lets examine the change in gdp in 3 and 12 months. 
+
+Also note that since Q1 and Q2 have low observations we should take these statistics for those quarters with caution...
+```{r,echo=FALSE}
+quarter1 = gdp %>% filter(Latest_data_from == "Q1 / 2020")
+quarter1 = quarter1[,-c(2,3)]
+
+quarter2 = gdp %>% filter(Latest_data_from == "Q2 / 2020")
+quarter2 = quarter2[,-c(2,3)]
+
+quarter3 = gdp %>% filter(Latest_data_from == "Q3 / 2020")
+quarter3 = quarter3[,-c(2,3)]
+
+quarter4 = gdp %>% filter(Latest_data_from == "Q4 / 2020")
+quarter4 = quarter4[,-c(2,3)]
+```
+
+**Quarter 1:**
+```{r,echo=FALSE}
+summary(quarter1)
+```
+**Quarter 2:**
+```{r,echo=FALSE}
+summary(quarter2)
+```
+**Quarter 3:**
+```{r,echo=FALSE}
+summary(quarter3)
+```
+**Quarter 4:**
+```{r,echo=FALSE}
+summary(quarter4)
+```
+
+## GDP Change (3 and 12 Months)
+To visualize the summary statistics lets display a boxplot for quarters 3 and 4 since those seem to have a promising number of observations. 
+```{r,message=FALSE,echo=FALSE, warning=FALSE}
+q34 = gdp %>% subset(Latest_data_from == c("Q3 / 2020","Q4 / 2020") )
+q34 = q34[,-c(3)]
+
+ggplot(data=q34, mapping=aes(x=Latest_data_from, y=Change_3_months)) +
+  geom_boxplot() +
+  xlab("Quarter")+
+  ylab("GDP Change")+
+  ggtitle("Distribution of GDP Change in the last 3 months across Quarter 3 and 4")
+```
+
+```{r,message=FALSE,echo=FALSE, warning=FALSE}
+q34 = gdp %>% subset(Latest_data_from == c("Q3 / 2020","Q4 / 2020") )
+q34 = q34[,-c(3)]
+
+ggplot(data=q34, mapping=aes(x=Latest_data_from, y=Change_12_months)) +
+  geom_boxplot() +
+  xlab("Quarter")+
+  ylab("GDP Change")+
+  ggtitle("Distribution of GDP Change in the last 12 months across Quarter 3 and 4")
+```
+
+Comparing these two plots we can see that gdp change in q3 and q4 seem to have positive economical growth, whereas if we compare it to last year (12 month change) we can see that the average is slightly negative (-0.9363% change). See statistics on section 4.2.2. 
+
+## GDP per Capita Dataset 
+The GDP per Capita dataset we used can be found here [here](https://www.theglobaleconomy.com/rankings/GDP_per_capita_current_dollars/).
+This data set contains 59 observations with 2 variables which is the country name and the GDP Per Capita (US Dollars). 
+
+```{r,echo=FALSE}
+gdp_per_capita = tibble(read.csv(file = 'gdp per capita.csv'))
+ggplot(data=gdp_per_capita, aes(x= reorder(ï..Location,GDP.per.capita), y=GDP.per.capita)) +
+  geom_bar(stat="identity")+
+  coord_flip()+# Horizontal bar plot 
+  xlab("US Dollars")+
+  ylab("Country")+
+  ggtitle("GDP per capita in U.S. dollars")+
+  theme(axis.text.y = element_text(size=7))
+
+summary(gdp_per_capita)
+```
+The bar graph allows us to clearly see all the countries in the dataset along with its corresponding GDP per capita in descending order. As we can see from the summary, the average gdp per capita is about  $16,228.
+
+
+# Inferential analysis 
+```{r, echo=FALSE, message=FALSE,warning=FALSE}
+#COPY PASTED THE SCRIPT TO SET UP ENVIRONMENT FOR ANALYSIS
+
+original_covid_data <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv") #DO NOT MODIFY  THIS VARIABLE
+covid <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
+gdp <- read.csv(file = 'gdp.csv', header = FALSE)
+
+
+#DATA PREPROCESSIG 
+
+country_names = c()
+data_from = c()
+latest_value = c()
+change_3_months = c()
+change_12_months = c()
+
+#Get Country names 
+range = seq(1,dim(gdp)[1],by = 6)
+for (i in range){
+  country_names = append(country_names, gdp[i,1])
+}
+
+#Get datafrom 
+range = seq(2,dim(gdp)[1],by = 6)
+for (i in range){
+  data_from = append(data_from, gdp[i,1])
+}
+
+#Get latest value  
+range = seq(3,dim(gdp)[1],by = 6)
+for (i in range){
+  latest_value = append(latest_value, gdp[i,1])
+}
+
+#Get 3 month change  
+range = seq(4,dim(gdp)[1],by = 6)
+for (i in range){
+  change_3_months = append(change_3_months, gdp[i,1])
+}
+
+#Get 12 month change  
+range = seq(5,dim(gdp)[1],by = 6)
+for (i in range){
+  change_12_months = append(change_12_months, gdp[i,1])
+}
+
+#Merge into a tibble 
+gdp <- tibble(Countries=country_names,
+              Latest_data_from = data_from,
+              Latest_value=latest_value,
+              Change_3_months=change_3_months,
+              Change_12_months= change_12_months)
+
+
+#Check which countries from gdp are not in covid dataset 
+gdp.distinct.country = gdp %>% distinct(Countries)
+covid.distinct.country = covid %>% distinct(Country)
+
+indexes = gdp.distinct.country$Countries %in% covid.distinct.country$Country
+not_found = gdp.distinct.country$Countries[!indexes]
+
+#Make sure they are not written as something else
+#For this we are checking for a substring of each not found country in the covid dataset 
+for (country in not_found){
+  for (i in 1:dim(covid.distinct.country)[1]){
+    subs = substr(country,1,3)
+    if (grepl(subs, covid.distinct.country[i,1]$Country, fixed = TRUE)){
+      #cat(country, ":", covid.distinct.country[i,1]$Country, "\n")
+    }
+  }
+}
+
+
+#Change the names of gdp coutries to match the covid countries dataset
+i = which(gdp$Countries == 'Bolivia')
+gdp$Countries[i] = "Bolivia (Plurinational State of)"
+
+i = which(gdp$Countries == 'Brunei')
+gdp$Countries[i] = "Brunei Darussalam"
+
+i = which(gdp$Countries == 'Iran')
+gdp$Countries[i] = "Iran (Islamic Republic of)"
+
+i = which(gdp$Countries == 'Moldova')
+gdp$Countries[i] = "Republic of Moldova"
+
+i = which(gdp$Countries == 'Palestine')
+gdp$Countries[i] = "occupied Palestinian territory, including east Jerusalem"
+
+i = which(gdp$Countries == 'Russia')
+gdp$Countries[i] = "Russian Federation"
+
+i = which(gdp$Countries == 'Tanzania')
+gdp$Countries[i] = "United Republic of Tanzania"
+
+i = which(gdp$Countries == 'United Kingdom')
+gdp$Countries[i] = "The United Kingdom"
+
+i = which(gdp$Countries == 'Vietnam')
+gdp$Countries[i] = "Viet Nam"
+
+i = which(gdp$Countries == 'USA')
+gdp$Countries[i] = "United States of America"
+
+####Other names have to "other" names and this other name can be found on google and mapped to the covid dataset 
+i = which(gdp$Countries == 'Burma (Myanmar)')
+gdp$Countries[i] = "Myanmar"
+
+i = which(gdp$Countries == 'Cape Verde')
+gdp$Countries[i] = "Cabo Verde"
+
+i = which(gdp$Countries == 'South Korea')
+gdp$Countries[i] = "Republic of Korea"
+
+
+
+
+#Sanity check  
+gdp.distinct.country = gdp %>% distinct(Countries)
+covid.distinct.country = covid %>% distinct(Country)
+
+indexes2 = gdp.distinct.country$Countries %in% covid.distinct.country$Country
+not_found2 = gdp.distinct.country$Countries[!indexes2]
+#cat("From all the countries in the gdp dataset only these were not found in the covid dataset: ",not_found2,"\n")
+
+#FILTER THE COUNTRIES IN GDP THAT ALSO BELONG TO COVID DATASET
+gdp = gdp %>% filter(Countries != not_found2)
+gdp = gdp[-c(which(gdp$Countries == "Macao")),] #Had to remove manually
+
+#Get rows of interest from covid dataset 
+row_index = covid$Country %in% gdp$Countries
+covid = covid[row_index,]
+
+
+##############################################################
+covid <- covid %>% arrange(Date_reported)
+
+
+get.quarter.info = function(covid){
+  covid_quarter = tibble(quarter = "dmmy", country = "dmmy", starting_cases = -1, ending_cases = -1, total_cases = -1,
+                         starting_deaths = -1, ending_deaths = -1, total_deaths = -1)
+  
+  all_countries = covid %>% distinct(Country)
+  for (country_name in all_countries){
+    one_country <- covid %>% filter(Country == country_name)
+    Q1 = subset(one_country,Date_reported >= "2020-01-01" & Date_reported <= "2020-03-31")
+    Q2 = subset(one_country,Date_reported >= "2020-04-01" & Date_reported <= "2020-06-30")
+    Q3 = subset(one_country,Date_reported >= "2020-07-01" & Date_reported <= "2020-09-30")
+    Q4 = subset(one_country,Date_reported >= "2020-10-01" & Date_reported <= "2020-12-31")
+    
+    Q1min =  Q1 %>% filter(Date_reported == min(Q1$Date_reported))
+    Q1max =  Q1 %>% filter(Date_reported == max(Q1$Date_reported))
+    
+    Q2min =  Q2 %>% filter(Date_reported == min(Q2$Date_reported))
+    Q2max =  Q2 %>% filter(Date_reported == max(Q2$Date_reported))
+    
+    Q3min =  Q3 %>% filter(Date_reported == min(Q3$Date_reported))
+    Q3max =  Q3 %>% filter(Date_reported == max(Q3$Date_reported))
+    
+    Q4min =  Q4 %>% filter(Date_reported == min(Q4$Date_reported))
+    Q4max =  Q4 %>% filter(Date_reported == max(Q4$Date_reported))
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q1 / 2020", country = country_name,
+                                              starting_cases= Q1min$Cumulative_cases, ending_cases = Q1max$Cumulative_cases, total_cases = Q1max$Cumulative_cases - Q1min$Cumulative_cases,
+                                              starting_deaths= Q1min$Cumulative_deaths, ending_deaths = Q1max$Cumulative_deaths, total_deaths = Q1max$Cumulative_deaths - Q1min$Cumulative_deaths)
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q2 / 2020", country = country_name,
+                                              starting_cases= Q2min$Cumulative_cases, ending_cases = Q2max$Cumulative_cases, total_cases = Q2max$Cumulative_cases - Q2min$Cumulative_cases,
+                                              starting_deaths= Q2min$Cumulative_deaths, ending_deaths = Q2max$Cumulative_deaths, total_deaths = Q2max$Cumulative_deaths - Q2min$Cumulative_deaths)
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q3 / 2020", country = country_name,
+                                              starting_cases= Q3min$Cumulative_cases, ending_cases = Q3max$Cumulative_cases, total_cases = Q3max$Cumulative_cases - Q3min$Cumulative_cases,
+                                              starting_deaths= Q3min$Cumulative_deaths, ending_deaths = Q3max$Cumulative_deaths, total_deaths = Q3max$Cumulative_deaths - Q3min$Cumulative_deaths)
+    
+    covid_quarter = covid_quarter %>% add_row(quarter="Q4 / 2020", country = country_name,
+                                              starting_cases= Q4min$Cumulative_cases, ending_cases = Q4max$Cumulative_cases, total_cases = Q4max$Cumulative_cases - Q4min$Cumulative_cases,
+                                              starting_deaths= Q4min$Cumulative_deaths, ending_deaths = Q4max$Cumulative_deaths, total_deaths = Q4max$Cumulative_deaths - Q4min$Cumulative_deaths)
+  }
+  
+  return(covid_quarter[-1,]) #Return all but first row because that was a dummy row
+}
+
+Qcovid = get.quarter.info(covid = covid)
+
+
+################ Conversions################
+#gdp is in billion local currency (First multiply by 1billion)
+gdp$Latest_value = as.numeric(gdp$Latest_value) * 10^9
+gdp$Latest_value = as.character(gdp$Latest_value)
+
+######## USE 'gdp' AND 'Qcovid' DATAFRAMES 
+
+copy_Qcovid = Qcovid
+covid_gdp = data.frame(gdp[1:4])
+covid_gdp = covid_gdp %>% filter(Latest_data_from == "Q3 / 2020") #data from 2020 only
+covid_gdp = data.frame(merge(copy_Qcovid, covid_gdp, by.x = c("country", "quarter"), by.y = c("Countries", "Latest_data_from")))
+covid_gdp$case_increase = unlist(c(covid_gdp[4] - covid_gdp[3]))
+covid_gdp = data.frame(covid_gdp[,c(1, 9:11)])
+
+population = read_csv('https://population.un.org/wpp/Download/Files/1_Indicators%20(Standard)/CSV_FILES/WPP2019_TotalPopulationBySex.csv')
+population = population %>% filter(Time == "2019")
+population = data.frame(population[,c(2,9)])
+i = which(population$Location == "United Kingdom")
+population$Location[i] = "The United Kingdom"
+i = which(population$Location == "State of Palestine")
+population$Location[i] = "occupied Palestinian territory, including east Jerusalem"
+covid_gdp = merge(population, covid_gdp, by.x = "Location", by.y = "country")
+
+#Convert population
+covid_gdp$PopTotal = covid_gdp$PopTotal * 1000
+
+covid_gdp$prp_case_increase = unlist(c(covid_gdp[5] / covid_gdp[2]))
+covid_gdp$gdp_per_capita = as.numeric(unlist(covid_gdp[3])) / covid_gdp[2]
+#covid_gdp = data.frame
+
+######## 
+#Change 'Change_3_months' type to numeric instead of char 
+numeric_change_3_months = c()
+for (i in 1:length(covid_gdp$Change_3_months)){
+  word = covid_gdp$Change_3_months[i]
+  num = as.numeric(substr(word,1,nchar(word)-1))
+  numeric_change_3_months = append(numeric_change_3_months,num)
+}
+
+covid_gdp$Change_3_months = numeric_change_3_months
+
+#Make into a tibble  
+covid_gdp = tibble(covid_gdp)
+covid_gdp$Latest_value =  as.numeric(covid_gdp$Latest_value)
+covid_gdp2 = covid_gdp %>% select(Location, Change_3_months,prp_case_increase,gdp_per_capita)
+covid_gdp2$rank_increase = rank(covid_gdp2$prp_case_increase)
+covid_gdp2$increase_cat = cut(covid_gdp2$rank_increase, breaks = c(0,20,40,59), labels = c(1, 2, 3))
+covid_gdp2 = covid_gdp2 %>% select(Location, increase_cat, Change_3_months)
+
+gdp_per_capita = read.csv(file = 'gdp per capita.csv')
+covid_gdp2 = merge(covid_gdp2, gdp_per_capita, by.x = c("Location"), by.y = c("ï..Location"))
+covid_gdp2$rank_gdp = rank(covid_gdp2$GDP.per.capita)
+covid_gdp2$gdp_cat = cut(covid_gdp2$rank_gdp, breaks = c(0,20,40,59), labels = c(1, 2, 3))
+covid_gdp2 = covid_gdp2 %>% select(Location, Change_3_months, increase_cat, gdp_cat)
+```
 We propose the following two-factor ANOVA model to explain the variance observed in the percentage GDP change in quarter 3 for each country: $Y_{ijk} = \mu_{..} + \alpha_{i} + \beta_{j} + \epsilon_{ijk}$, where $\mu_{..}$ is the parameter for the average of all countries percentage GDP change in quarter 3 and $\alpha_{i}$ and $\beta_{j}$ represent the linear parameters for prediction of mean percentage GDP change. $\alpha_{i}$ are the linear parameters for the proportion of the population infected with COVID-19 in quarter 3, where $i = {1, 2, 3}$ are the groups for countries with relative levels of the proportion of their population infected: 1 - Lowest, 2 - Moderate, 3 - Highest $\beta_{j}$ are the linear parameters for GDP per capita of each country, where $j = {1, 2, 3}$ are the groups for countries with relative levels of wealth measured in GDP per capita: 1 - Poor, 2 - Moderate, 3 - Wealthy. We will test two null hypotheses with our ANOVA model: $H_0: \alpha_1 = \alpha_2 = \alpha_3 = 0$ and $H_0: \beta_1 = \beta_2 = \beta_3 = 0$. Our alternative hypotheses are: $H_A:$ at least one $\alpha_{i}$ ≠ $\alpha_{k}$ where i ≠ k and $H_A:$ at least one $\beta_{j}$ ≠ $\beta_{k}$ where i ≠ k. Our model assumes equal variance between the levels of each factor, $\alpha_{i}$ and $\beta_{j}$ and that our observations of GDP change in quarter for each country are independent and distributed normally. 
 
 ```{r}
