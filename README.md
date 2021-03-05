@@ -1,1 +1,3 @@
-This repository provides a basic template for the course project on the WHO Covid-19 data (https://covid19.who.int/WHO-COVID-19-global-data.csv). The Covid-19 dataset in /Data is merely a backup in case the WHO data set is not accessible. Analysis should be done on the latest dataset from the WHO website.
+STA141A Project 2
+
+Abstract: The spread of COVID-19 had detrimental effects on economic activities following the worldwide lockdowns. Our primary interest was whether there were differences among countries’ ability to recover from the initial economic impacts of COVID-19 due to overall wealth and proportion of the population with COVID-19 infections.
