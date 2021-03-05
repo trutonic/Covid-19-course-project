@@ -1,7 +1,7 @@
 ---
 title: "Exploratory Analysis on the effect of COVID-19 on GDP"
 author: "(Your name, student ID here, and your team ID)"
-date: "(Date on which the report is written)"
+date: "March 3rd, 2021"
 output:
   html_document:
     df_print: paged
@@ -601,7 +601,7 @@ The bar graph allows us to clearly see all the countries in the dataset along wi
 
 # Inferential analysis 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-#COPY PASTED THE SCRIPT TO SET UP ENVIRONMENT FOR ANALYSIS
+#SET UP ENVIRONMENT FOR ANALYSIS
 
 original_covid_data <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv") 
 covid <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
