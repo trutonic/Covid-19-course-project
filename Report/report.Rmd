@@ -889,8 +889,8 @@ In our examination of the question of how COVID-19 affected economies around the
 # Reference {-}
 
 WHO Coronavirus Disease (COVID-19) Global Data. (n.d.). Retrieved March 03, 2021, from https://covid19.who.int/
-Gross Domestic Product (GDP) by country: the latest data. (n.d.). Retrieved March 03, 2021, from https://www.theglobaleconomy.com/rankings/gdp_current_local_currency/
-GDP per capita, current dollars - Country rankings. (n.d.). Retrieve March 03, 2021, from https://www.theglobaleconomy.com/rankings/GDP_per_capita_current_dollars/
+
+"GDP per capita, current dollars - Country rankings." TheGlobalEconomy.com, https://www.theglobaleconomy.com/rankings/GDP_per_capita_current_dollars/
 
 “Gross Domestic Product (GDP) around the World.” TheGlobalEconomy.com, www.theglobaleconomy.com/rankings/gdp_current_local_currency/. 
 
