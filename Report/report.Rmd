@@ -10,6 +10,7 @@ output:
 ```{r, echo=FALSE,warning=FALSE,message=FALSE}
 library(tidyverse)
 library(rworldmap)
+library(car)
 ```
 
 # Abstract 
@@ -599,15 +600,14 @@ The bar graph allows us to clearly see all the countries in the dataset along wi
 
 
 # Inferential analysis 
-```{r, echo=FALSE, message=FALSE,warning=FALSE}
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 #COPY PASTED THE SCRIPT TO SET UP ENVIRONMENT FOR ANALYSIS
 
-original_covid_data <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv") #DO NOT MODIFY  THIS VARIABLE
+original_covid_data <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv") 
 covid <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
 gdp <- read.csv(file = 'gdp.csv', header = FALSE)
 
-
-#DATA PREPROCESSIG 
+#DATA PREPROCESSING 
 
 country_names = c()
 data_from = c()
@@ -713,9 +713,6 @@ gdp$Countries[i] = "Cabo Verde"
 i = which(gdp$Countries == 'South Korea')
 gdp$Countries[i] = "Republic of Korea"
 
-
-
-
 #Sanity check  
 gdp.distinct.country = gdp %>% distinct(Countries)
 covid.distinct.country = covid %>% distinct(Country)
@@ -810,9 +807,8 @@ covid_gdp = merge(population, covid_gdp, by.x = "Location", by.y = "country")
 #Convert population
 covid_gdp$PopTotal = covid_gdp$PopTotal * 1000
 
+#Proportion of the population infected with COVID during quarter 3.
 covid_gdp$prp_case_increase = unlist(c(covid_gdp[5] / covid_gdp[2]))
-covid_gdp$gdp_per_capita = as.numeric(unlist(covid_gdp[3])) / covid_gdp[2]
-#covid_gdp = data.frame
 
 ######## 
 #Change 'Change_3_months' type to numeric instead of char 
@@ -841,7 +837,7 @@ covid_gdp2 = covid_gdp2 %>% select(Location, Change_3_months, increase_cat, gdp_
 ```
 We propose the following two-factor ANOVA model to explain the variance observed in the percentage GDP change in quarter 3 for each country: $Y_{ijk} = \mu_{..} + \alpha_{i} + \beta_{j} + \epsilon_{ijk}$, where $\mu_{..}$ is the parameter for the average of all countries percentage GDP change in quarter 3 and $\alpha_{i}$ and $\beta_{j}$ represent the linear parameters for prediction of mean percentage GDP change. $\alpha_{i}$ are the linear parameters for the proportion of the population infected with COVID-19 in quarter 3, where $i = {1, 2, 3}$ are the groups for countries with relative levels of the proportion of their population infected: 1 - Lowest, 2 - Moderate, 3 - Highest $\beta_{j}$ are the linear parameters for GDP per capita of each country, where $j = {1, 2, 3}$ are the groups for countries with relative levels of wealth measured in GDP per capita: 1 - Poor, 2 - Moderate, 3 - Wealthy. We will test two null hypotheses with our ANOVA model: $H_0: \alpha_1 = \alpha_2 = \alpha_3 = 0$ and $H_0: \beta_1 = \beta_2 = \beta_3 = 0$. Our alternative hypotheses are: $H_A:$ at least one $\alpha_{i}$ ≠ $\alpha_{k}$ where i ≠ k and $H_A:$ at least one $\beta_{j}$ ≠ $\beta_{k}$ where i ≠ k. Our model assumes equal variance between the levels of each factor, $\alpha_{i}$ and $\beta_{j}$ and that our observations of GDP change in quarter for each country are independent and distributed normally. 
 
-```{r}
+```{r, echo=FALSE}
 aov_model = aov(Change_3_months ~ increase_cat + gdp_cat, data = covid_gdp2)
 summary(aov_model)
 ```
@@ -849,14 +845,13 @@ The ANOVA model presents F-values: 1.748 and 0.685, p-values: 0.184, 0.508 for p
 
 # Model Diagnostics
 
-```{r}
+```{r, echo=FALSE}
 plot(aov_model)
 ```
 
 We produced diagnostic plots to determine if the assumptions of our model are correct. In our residuals vs. fitted plot we determine if there are any non-linear patterns present based on the presence of a non-horizontal pattern. Our data does not show any distinct non-horizontal pattern, so the assumption of linearity is likely fair. We next produced a Normal Q-Q plot to test the normality of our residuals, of which appear to align fairly well with the qq-line indicating our assumption of normality is fair. The Scale-Location plot we produced checks our assumption of equal variance between groups of a factor based on the horizontality of the plot, of which our data is fairly horizontal aside from a kink towards the middle. Our assumption of equal variance may be fair, but this kink in the plot gives some doubt to this assumption. The final diagnostic plot produced is the residuals vs. leverage graph which reveals any subjects that may be more influential to the data than desired, of which according to our graph there does not appear to be any.
 
-```{r}
-library(car)
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 leveneTest(Change_3_months ~ increase_cat, data = covid_gdp2)
 leveneTest(Change_3_months ~ gdp_cat, data = covid_gdp2)
 ```
@@ -864,7 +859,7 @@ leveneTest(Change_3_months ~ gdp_cat, data = covid_gdp2)
 We perform a Levene's test on each factor respective to percentage GDP change in quarter 3 for each country, and found that at p-values: .8819 ($\alpha_{i}$) and .07331 ($\beta_{j}$) we may not reject the null hypothesis of equal variance between groups for either factor at a signicance level of $\alpha = .05$.
 
 To further explore the possibility of a signficant interaction between percentage GDP change in quarter 3 for each country and proportion of the population infected with COVID-19 in quarter 3, the more signficant factor of our ANOVA analysis, we will perform the non-parametric Kruskal-Wallis Test as an alternative to ANOVA. With this model we will not have to make the assumption of normality in our data, nor the assumption of equal variances between groups. In this model we will test the null hypothesis: $H_0: F_1(x) = F_2(x) = F_3(x)$, where $F_1(x)$ is the CDF for the group with countries with the lowest proportion of their population infected, $F_2(x)$ the CDF for the group with moderate proportion, and $F_3(x)$ the CDF for the group with the highest proportion. Our alternative hypothesis is: $H_A:$ at least one $F_{i}$ ≠ $F_{k}$ where $i = {1, 2, 3}$ and i ≠ k.
-```{r}
+```{r, echo=FALSE}
 set.seed(20)
 covid_gdp2$Rank = rank(covid_gdp2$Change_3_months, ties = "average")
 ni = aggregate(Change_3_months ~ increase_cat, data = covid_gdp2, length)$Change_3_months
@@ -883,7 +878,7 @@ perms.KW = sapply(1:2000,function(i){
 })
 p.value = mean(perms.KW > KW.OBS); p.value
 ```
-We calculate a p-value of 0.254 for our Kruskal-Wallis test, which at significance level of $\alpha = 0.05$, we may not reject the null hypothesis and must conclude that all CDFs are equivalent and there is no difference in variation of percentage GDP change in quarter 3 between each group of relative proportions of the population infected with COVID-19 in quarter 3. Given the failure of our non-parametric test to reject the null hypothesis, which does not rely on the same assumptions of the parametric ANOVA test, our conclusion that the variation observed in the percentage GDP change in quarter 3 between each country may not be explained by any group in the factor of proportions of the population infected with COVID-19 is reinforced.
+We perform 2000 permutations and compare them to our observed Kruskal-Wallis statistic to calculate a p-value of 0.254 for our Kruskal-Wallis test, which at significance level of $\alpha = 0.05$, we may not reject the null hypothesis and must conclude that all CDFs are equivalent and there is no difference in variation of percentage GDP change in quarter 3 between each group of relative proportions of the population infected with COVID-19 in quarter 3. Given the failure of our non-parametric test to reject the null hypothesis, which does not rely on the same assumptions of the parametric ANOVA test, our conclusion that the variation observed in the percentage GDP change in quarter 3 between each country may not be explained by any group in the factor of proportions of the population infected with COVID-19 is reinforced.
 
 # Conclusion
 
