@@ -1,6 +1,6 @@
 ---
 title: "Exploratory Analysis on the Effect of COVID-19 on GDP"
-author: "Ian Whaling, 914014658, Samuel Becerra Martinez, Esmeralda Buenrostro, Ryan Truong 916857334, Team ID: 9"
+author: "Ian Whaling 914014658, Samuel Becerra Martinez, Esmeralda Buenrostro, Ryan Truong 916857334, Team ID: 9"
 date: "March 3rd, 2021"
 output:
   html_document:
