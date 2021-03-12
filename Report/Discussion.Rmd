@@ -56,4 +56,4 @@ Typos:
 2. What are some confounding variables that could explain why was there no significance observed?
 3. How might the findings of this report apply to other quarters or time periods during the pandemic and what is the applicability of these findings to our current or future situation?
 4. What are some other ideas that can be discussed to further explore the association of economy and COVID-19?
-5. 
+5. What could be some explanations for the uniform global recovery in GDP in Q3?
