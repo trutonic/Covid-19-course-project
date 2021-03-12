@@ -26,7 +26,8 @@ knitr::opts_chunk$set(fig.pos = 'H')
 * Add descriptive/supporting analysis in the background. What have other studies shown? 
 * “Impact on the economy”
 * Take the log
-* Try to explain the results. Are there important confounding variables that we are ignoring? Tell a story..
+
+1. The conclusion could use more explanation when it comes to the results. The report states, “We determine that the proportion of the population infected with COVID-19 and GDP per capita were not explicable in the variation observed in percentage GDP change in quarter 3 between each country.” Although the conclusion provides possible explanations as to why there is a lack of association between the percentage change in GDP and the two variables, it primarily focuses on the lack of up to date information on GDP. Rather than just concluding that there is a lack of up to date information or missing information, there should be a more thorough explanation for this conclusion that draws from real-word explanations or scenarios. There can be explanations for this conclusion, such as confounding variables. This can even be a result of different policies set forth or any other factors specific to a certain country or geographic region. 
 
 
 # Minor comments 
