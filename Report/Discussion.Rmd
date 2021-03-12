@@ -41,6 +41,7 @@ Visuals:
 * In addition to what has been stated in Major Comments No. 3, graphs and visuals should be strategically selective and condensed. Having graphs and visuals can reveal great insights, but having too many graphs can cause confusion or redundancy. As an example, see Section 4.1.1 on the report. There are two graphs that are plotting the same thing. The only thing that differs them is removing a few points to zoom into the denser area, but the graph is not much more intuitive than the first.
 
 Typos:
+
 * 4.1.3 of Descriptive Analysis: ‘begining,' ‘differnce’ 
 * 4.1.5 of Descriptive Analysis: ‘noticble’
 * 4.4 of Descriptive Analysis: ‘here here’
@@ -48,6 +49,10 @@ Typos:
 * Model Diagnostics: 'signicance,' 'signficant,' 'signficant'
 * Various missing commas throughout the report
 * 'gdp' is not fully capitalized as it should be many times throughout the report
+
+Other:
+
+* The output for some code is present beneath the Background with no context given.
 
 
 # Questions to address during the final presentation
