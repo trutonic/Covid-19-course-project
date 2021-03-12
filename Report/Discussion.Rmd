@@ -22,7 +22,6 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 # Major comments 
 
-* Interaction terms 
 * Add descriptive/supporting analysis in the background. What have other studies shown? 
 * “Impact on the economy”
 * Take the log
