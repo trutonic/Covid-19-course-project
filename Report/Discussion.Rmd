@@ -36,8 +36,12 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 
 # Minor comments 
+Visuals:
 
-* Typos 
+* In addition to what has been stated in Major Comments No. 3, graphs and visuals should be strategically selective and condensed. Having graphs and visuals can reveal great insights, but having too many graphs can cause confusion or redundancy. As an example, see Section 4.1.1 on the report. There are two graphs that are plotting the same thing. The only thing that differs them is removing a few points to zoom into the denser area, but the graph is not much more intuitive than the first.
+
+Typos:
+* 
 
 
 # Questions to address during the final presentation
