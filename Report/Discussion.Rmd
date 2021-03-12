@@ -47,7 +47,7 @@ Typos:
 * Inferential Analysis: ‘signicance,’ ‘signficantly,’ ‘signficant’
 * Model Diagnostics: 'signicance,' 'signficant,' 'signficant'
 * Various missing commas throughout the report
-* 'GDP,' as an acronym should always be fully capitalized
+* 'gdp' is not fully capitalized as it should be many times throughout the report
 
 
 # Questions to address during the final presentation
