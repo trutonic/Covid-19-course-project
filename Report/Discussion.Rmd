@@ -55,4 +55,5 @@ Typos:
 1. Is the interaction term significant or non-significant? If so, which interaction terms are significantly different and how does this change the conclusion?
 2. What are some confounding variables that could explain why was there no significance observed?
 3. How might the findings of this report apply to other quarters or time periods during the pandemic and what is the applicability of these findings to our current or future situation?
-4. 
+4. What are some other ideas that can be discussed to further explore the association of economy and COVID-19?
+5. 
