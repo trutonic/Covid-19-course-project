@@ -1,0 +1,39 @@
+---
+title: "Exploratory Analysis on the Effect of COVID-19 on GDP: Discussion"
+author: "Ian Whaling 914014658, Samuel Becerra Martinez 914309570, Esmeralda Buenrostro 915430778, Ryan Truong 916857334, Team ID: 9"
+date: "March 10, 2021"
+output:
+  html_document:
+    df_print: paged
+    number_sections: yes
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'H')
+```
+
+
+
+***
+
+
+# Overall impression
+
+
+
+# Major comments 
+
+* Interaction terms 
+* Add descriptive/supporting analysis in the background. What have other studies shown? 
+* “Impact on the economy”
+* Take the log
+* Try to explain the results. Are there important confounding variables that we are ignoring? Tell a story..
+
+
+# Minor comments 
+
+* Typos 
+
+
+# Questions to address during the final presentation
+
+
