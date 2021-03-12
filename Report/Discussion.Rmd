@@ -16,7 +16,9 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 # Overall impression
 
+This report is primarily focused on the differences between countries' ability to recover from the initial negative economic associations that came with COVID-19. It utilized the overall wealth of a country along with the proportion of the population with COVID-19 infections to find this difference in recovery. To gauge this economic recovery from COVID-19, the data was broken up into fiscal quarters, and specifically utilized Q2, which was the quarter where the initial associations of Covid-19 economy were first seen and Q3, which was the quarter where the economy began to recover. There were 3 datasets used: the WHO dataset with total daily numbers of infections/deaths per country, the change in GDP dataset which gave the percentage change in GDP from Q2 to Q3 for each country, and the GDP per capita dataset which gave 2019 GDP per capita for each country. An ANOVA model with no interaction effects was used to explain the difference in the percentage change in GDP in Q3 between countries. The population infected with COVID-19 was split into levels: [1 - Lowest, 2 - Moderate, 3 - Highest], and GDP per capita was also split: [1 - Poor, 2 - Moderate, 3 - Wealthy]. The statistical significance of these differences between percentage change in GDP between countries was measured and diagnostic tests were performed to measure errors. It found no errors and a Kruskal-Wallis test was used to test assumptions across the groups, and found no significant difference. Ultimately, the report found that the proportion of the population infected with COVID-19 and GDP per capita were not able to explain the variation observed in percentage GDP change in Q3 between each country. This meant that economic recovery in Q3 seemed to be consistent throughout the countries observed, likely due to the similar wealth that these countries exhibit. Some caveats included that developing countries did update GDP as frequently and lag behind on these statistics, so many poorer countries were not included which could be a reason for these findings.
 
+T
 
 # Major comments 
 
@@ -36,6 +38,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 
 # Minor comments 
+
 Visuals:
 
 * In addition to what has been stated in Major Comments No. 3, graphs and visuals should be strategically selective and condensed. Having graphs and visuals can reveal great insights, but having too many graphs can cause confusion or redundancy. As an example, see Section 4.1.1 on the report. There are two graphs that are plotting the same thing. The only thing that differs them is removing a few points to zoom into the denser area, but the graph is not much more intuitive than the first.
