@@ -30,7 +30,7 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 3. The descriptive analysis should be more reflective of the resulting statistical model explored in the inferential analysis. In other words, the descriptive analysis should lead up to the relation of GDP change to COVID-19 cases and GDP per capita. Graphs visualizing the relationship between each variable in the following model should be present, for eaxmple. Also, some of the data analyzed in the descriptive analysis, such as deaths, is not statistically relevant to the model and should probably be excluded unless it is explored further. 
 
-4. There were a few instances where the word ‘impact’ was used, mainly in the context of describing how Covid-19 had an ‘impact’ on economic activity due to the two variables. However, there should not be any causal statements made in the project. We can only conclude that there are associations because there may be other factors that can contribute to this economic activity.
+4. There were a few instances where the word ‘impact’ was used, mainly in the context of describing how Covid-19 had an ‘impact’ on economic activity due to the two variables. However, there should not be any causal statements made in the project unless you feel very confident about this causal inference. If no causal inference can be made, we can only conclude that there are associations. This is because there may be other factors that can contribute to this change in economic activity that werent included such as lifestyle or transportation. 
 
 
 # Minor comments 
