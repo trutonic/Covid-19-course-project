@@ -11,8 +11,6 @@ output:
 knitr::opts_chunk$set(fig.pos = 'H')
 ```
 
-
-
 ***
 
 
@@ -22,9 +20,9 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 # Major comments 
 
-* Add descriptive/supporting analysis in the background. What have other studies shown? 
-* “Impact on the economy”
-* Take the log
+* Add descriptive/supporting analysis in the background. What have other studies shown? This could be a good addition because it can show what other studies have found on economic activity and Covid-19.
+* Take the log: Maybe include a country's new cases per quarter, calculate the deaths per quarter or use case mortality rates
+* Delve deeper into which factor is associated with which. Could economic recovery be playing a factor on Covid-19 cases? Why is this not the case? Explain.
 
 1. The conclusion could use more explanation when it comes to the results. The report states, “We determine that the proportion of the population infected with COVID-19 and GDP per capita were not explicable in the variation observed in percentage GDP change in quarter 3 between each country.” Although the conclusion provides possible explanations as to why there is a lack of association between the percentage change in GDP and the two variables, it primarily focuses on the lack of up to date information on GDP. Rather than just concluding that there is a lack of up to date information or missing information, there should be a more thorough explanation for this conclusion that draws from real-word explanations or scenarios. There can be explanations for this conclusion, such as confounding variables. This can even be a result of different policies set forth or any other factors specific to a certain country or geographic region. 
 
