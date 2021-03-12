@@ -29,6 +29,10 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 1. The conclusion could use more explanation when it comes to the results. The report states, “We determine that the proportion of the population infected with COVID-19 and GDP per capita were not explicable in the variation observed in percentage GDP change in quarter 3 between each country.” Although the conclusion provides possible explanations as to why there is a lack of association between the percentage change in GDP and the two variables, it primarily focuses on the lack of up to date information on GDP. Rather than just concluding that there is a lack of up to date information or missing information, there should be a more thorough explanation for this conclusion that draws from real-word explanations or scenarios. There can be explanations for this conclusion, such as confounding variables. This can even be a result of different policies set forth or any other factors specific to a certain country or geographic region. 
 
+2. The two-factor ANOVA model produced in the inferential analysis should include interaction terms. The interaction term examines the effects of levels of one factor on the levels of the other factor, by excluding it from the analysis the question of interaction between COVID-19 infections and GDP per capita for each country is unresolved. If the interaction is non-significant it should be reported and discussed, if the interaction is significant the conclusion of the report should be changed to reflect this.
+
+3. The descriptive analysis should be more reflective of the resulting statistical model explored in the inferential analysis. In other words, the descriptive analysis should lead up to the relation of GDP change to COVID-19 cases and GDP per capita. Graphs visualizing the relationship between each variable in the following model should be present, for eaxmple. Also, some of the data analyzed in the descriptive analysis, such as deaths, is not statistically relevant to the model and should probably be excluded unless it is explored further. 
+
 
 # Minor comments 
 
