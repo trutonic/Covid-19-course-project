@@ -32,6 +32,8 @@ knitr::opts_chunk$set(fig.pos = 'H')
 
 4. There were a few instances where the word ‘impact’ was used, mainly in the context of describing how Covid-19 had an ‘impact’ on economic activity due to the two variables. However, there should not be any causal statements made in the project unless you feel very confident about this causal inference. If no causal inference can be made, we can only conclude that there are associations. This is because there may be other factors that can contribute to this change in economic activity that werent included such as lifestyle or transportation. 
 
+5. The introduction could go into more detail regarding the context of the time period explored in the data analysis, quarter 3. The third quarter of 2020 was remarked with almost universal economic recovery due to the adjustments and relaxing of regulations made following the sudden stipulations applied to commerce for initial lockdown/quarantine during quarter 2. This quarter was also when many countries saw their initial waves of COVID-19 cases, such as those in South-East Asia and Africa. The introduction should make note of distinctions of this quarter in the context of the ongoing pandemic, and they should be considered in the conclusion during discussions of confounders.
+
 
 # Minor comments 
 
